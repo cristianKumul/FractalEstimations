@@ -2,6 +2,7 @@
 library('fractal')
 library('fArma')
 library('ggplot2')
+library('gridExtra')
 
 set.seed(123)
 
@@ -64,7 +65,8 @@ fractalMain<-function(n)
   frequencyEstimation=c()
   weibletsEstimation=c()
   matriz <-matrix(0,9,9)
-  mBoxPlot<-matrix(0,9,3)
+  mBoxPlot<-matrix(, nrow = n, ncol = 27)#matrix(ncol=27,nrow=9)
+  estimationsList<-list()
   df <- data.frame(Foo=NULL)
   #pdf('final2.pdf')
   index=1
@@ -92,8 +94,18 @@ fractalMain<-function(n)
     matriz[index,8] = var(weibletsEstimation)
     matriz[index,9] = mse(weibletsEstimation)
     
-   
     
+    #estimationsList[index]<-timeEstimation
+    #estimationsList[index+1]<-frequencyEstimation
+    #estimationsList[index+2]<-weibletsEstimation
+    indexRel<-index*3
+    mBoxPlot[,indexRel]<-timeEstimation
+    mBoxPlot[,indexRel-1]<-frequencyEstimation
+    mBoxPlot[,indexRel-2]<-weibletsEstimation
+    
+    #cbind(mBoxPlot,as.vector(timeEstimation))
+    #cbind(mBoxPlot,as.vector(frequencyEstimation))
+    #cbind(mBoxPlot,as.vector(weibletsEstimation))
     #print(cat("Para los valores H de " ,i,"\n"))
     #print("Estimación en el dominio del tiempo (t)\n")
     #print(cat("Media :",mean(timeEstimation)))
@@ -105,8 +117,8 @@ fractalMain<-function(n)
   
   
   #dev.off()
-  print(matriz)
-  print(df)
+  #print(matriz)
+  #print(df)
   data<-data.frame(Stat11=rnorm(100,mean=3,sd=2),
                    Stat21=rnorm(100,mean=4,sd=1),
                    Stat31=rnorm(100,mean=6,sd=0.5),
@@ -119,8 +131,22 @@ fractalMain<-function(n)
                    Stat23=rnorm(100,mean=5,sd=3),
                    Stat33=rnorm(100,mean=8,sd=0.2),
                    Stat43=rnorm(100,mean=4,sd=4))
-  boxplot(data, las = 2, names = c("t 0.1","frq 0.1","wavelet 0.1","t 0.2","frq 0.2","wavelet 0.2","t 0.3","frq 0.3","wavelet 0.3","t 0.4","frq 0.4","wavelet 0.4"))
+  #boxplot(data, las = 2, names = c("t 0.1","frq 0.1","wavelet 0.1","t 0.2","frq 0.2","wavelet 0.2","t 0.3","frq 0.3","wavelet 0.3","t 0.4","frq 0.4","wavelet 0.4"))
+  dataTest<-data.frame(mBoxPlot)
+  tableDF<-data.frame(matriz)
+  boxplot(dataTest)
+  hgValues<-seq(0.1,0.9,by=0.1)
   
+  tbl <- tableGrob(tableDF,
+                   cols = hgValues)
+  
+  grid.arrange(tbl,
+               nrow=1,
+               as.table=TRUE,
+               heights=c(3,1))
+  #plot.table(matriz, format(as.Date(Sys.time()), '%d %b %Y'))
+  print(mBoxPlot)
+  #print(dataTest)
 }
 ################
 
